@@ -15,15 +15,17 @@
         <!-- 题目组件 -->
         <script type="text/x-template" id="el-question">
           <div>
+              <el-col :span="18" :offset="3" class="answer-bg">
                 <el-col :span="24" class="margin-top-80 question">{{question.title}} ({{question.score}}分)</el-col>
-              <transition
-                name="custom-classes-transition"
-                enter-active-class="animated zoomIn"
-                leave-active-class="animated fadeOut"
-              >
-                <el-col :span="24" class="margin-top-40 question el-icon-check" v-if="question.showAnswer" key="on"> 正确答案：{{question.answer}}</el-col>
-                <el-col :span="24" class="margin-top-40 question" v-else="" key="off"> {{question.time}}</el-col>
-              </transition>
+                <transition
+                  name="custom-classes-transition"
+                  enter-active-class="animated zoomIn"
+                  leave-active-class="animated fadeOut"
+                >
+                  <el-col :span="24" class="margin-top-40 question el-icon-check" v-if="question.showAnswer" key="on"> 正确答案：{{question.answer}}</el-col>
+                  <el-col :span="24" class="margin-top-40 question time-release" v-else="" key="off"> {{question.time}}</el-col>
+                </transition>
+              </el-col>
           </div>
         </script>
 
@@ -46,6 +48,24 @@
             </div>
         </script>
 
+       <!-- mask -->
+        <script type="text/x-template" id="el-mask">
+            <div v-show="showmask">
+              <div class="el-dialog__wrapper" style="left:10%;top:10%;width:80%;position: absolute;z-index: 2056;">
+                  <div v-if="type == 0">
+                    <img src="dest/img/background.jpg" style="width:100%;">
+                  </div>
+                  <div v-else-if="type == 1">
+                    <audio src="dest/audio/01.mp3" controls="controls"></audio>
+                  </div>
+                  <div v-else-if="type == 2">
+                    <video src="dest/video/01.mp4" controls="controls" style="width:100%;"></video>
+                  </div>
+              </div>
+              <div class="v-modal light-off" @click="hideMask" style="z-index: 2055;"></div>
+            </div>
+        </script>
+
         <div class="content">
             <div id="app" class="main">
                 <el-row class="text-center">
@@ -59,17 +79,36 @@
                         <el-question :question="question" v-else="" key="off"></el-question>
                     </transition>
                 </el-row>
-              <div class="action">
-                  <el-col :span="12" :offset="6">
-                    <el-button-group>
-                      <el-button type="primary" icon="arrow-left" size="large" @click="goback">题目列表</el-button>
-                      <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
-                      <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-                    </el-button-group>
-                  </el-col>
-              </div>
+
+                <div class="action">
+                    <el-col :span="3" :offset="5">
+                      <el-select v-model="typeID" placeholder="请选择">
+                        <el-option-group
+                          v-for="group in classOptions"
+                          :label="group.label">
+                          <el-option
+                            v-for="item in group.options"
+                            :label="item.label"
+                            :value="item.value">
+                          </el-option>
+                        </el-option-group>
+                      </el-select>
+                    </el-col>
+                    <el-col :span="10" :offset="1">
+                      <el-button-group>
+                        <el-button type="primary" icon="arrow-left" size="large" @click="goback">题目列表</el-button>
+                        <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
+                        <el-button type="primary" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
+                        <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                      </el-button-group>
+                    </el-col>
+                </div>
+
+                <el-mask :showmask="showMask" :type="questionType"></el-mask>
+
             </div>
         </div>
+
     <script src="./dest/js/index.min.js"></script>
     <script src='./src/js/main.min.js'></script>
     </body>
