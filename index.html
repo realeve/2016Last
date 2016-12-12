@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>两学一做知识竞赛</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+       <!--  <link href="./src/css/index.css" rel="stylesheet">
+        <link href="./src/css/animate.min.css" rel="stylesheet"> -->
+        <link rel="stylesheet" href="dest/css/index.min.css">
+        <link href="./src/css/main.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <!-- 题目组件 -->
+        <script type="text/x-template" id="el-question">
+          <div>
+                <el-col :span="24" class="margin-top-80 question">{{question.title}} ({{question.score}}分)</el-col>
+              <transition
+                name="custom-classes-transition"
+                enter-active-class="animated zoomIn"
+                leave-active-class="animated fadeOut"
+              >
+                <el-col :span="24" class="margin-top-40 question el-icon-check" v-if="question.showAnswer" key="on"> 正确答案：{{question.answer}}</el-col>
+                <el-col :span="24" class="margin-top-40 question" v-else="" key="off"> {{question.time}}</el-col>
+              </transition>
+          </div>
+        </script>
+
+        <!-- 题目列表 -->
+        <script type="text/x-template" id="el-questionlist">
+            <div>
+                <el-row>
+                  <el-col :span="2" v-for="(item, index) in classlist" :offset="index % 6 == 0 ? 3 : 1" class="margin-top-10">
+                    <el-card :body-style="{ padding: '0px' }">
+                      <div class="image"><div class="answer-idx">{{index+1}}</div></div>
+                      <div style="padding: 14px;">
+                        <div class="bottom clearfix">
+                          <time class="time el-icon-check" v-if="item"></time>
+                          <el-button v-else="" @click="selectQuestion(index)" type="text" class="button">选择本题</el-button>
+                        </div>
+                      </div>
+                    </el-card>
+                  </el-col>
+                </el-row>
+            </div>
+        </script>
+
+        <div class="content">
+            <div id="app" class="main">
+                <el-row class="text-center">
+                  <el-col :span="24" class="title"><h2>{{type}}</h2></el-col>
+                     <transition
+                        name="no-mode-translate-fade"
+                        mode="out-in">
+                        <!-- 题目列表 -->
+                        <el-questionlist :classlist="classlist" v-if="on" key="on"></el-questionlist>
+                        <!-- 当前题目 -->
+                        <el-question :question="question" v-else="" key="off"></el-question>
+                    </transition>
+                </el-row>
+              <div class="action">
+                  <el-col :span="12" :offset="6">
+                    <el-button-group>
+                      <el-button type="primary" icon="arrow-left" size="large" @click="goback">题目列表</el-button>
+                      <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
+                      <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                    </el-button-group>
+                  </el-col>
+              </div>
+            </div>
+        </div>
+    <script src="./dest/js/index.min.js"></script>
+    <script src='./src/js/main.min.js'></script>
+    </body>
+</html>
