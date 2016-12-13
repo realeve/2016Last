@@ -1,8 +1,12 @@
 var arr = [];
+
+//问题最大长度
+var ANSWERLENGTH = 23;
+
 var initArr = (function() {
-	for (var j = 0; j < 5; j++) {
+	for (var j = 0; j < 10; j++) {
 		arr[j] = [];
-		for (var i = 0; i < 18; i++) {
+		for (var i = 0; i < (j < 8 ? 17 : 6); i++) {
 			arr[j].push(false);
 		}
 	}
@@ -10,14 +14,30 @@ var initArr = (function() {
 
 var elQuestion = {
 	template: '#el-question',
-	props: ['question']
+	props: ['question', 'type', 'src']
 };
 
+//当前问题属性记录
+var curQuestion;
+
 var getQuestionTitle = function(type, idx) {
-	return {
-		title: '中国共产党是在哪一年成立的？',
-		answer: '1921年'
+	var question = questionList[type][idx];
+	var obj = {
+		question: question.question,
+		answer: question.answer
 	};
+
+	curQuestion = {
+		type: qsType.NONE
+	};
+	if (typeof question.type != 'undefined') {
+		curQuestion.type = question.type;
+		curQuestion.src = question.src;
+		vm.questionType = question.type;
+		vm.src = question.src;
+	}
+
+	return obj;
 };
 
 var elQuestionList = {
@@ -29,9 +49,10 @@ var elQuestionList = {
 			this.$message('选择了第' + idx + '题');
 			var question = getQuestionTitle(vm.typeID, idx);
 			vm.question = {
-				title: question.title,
+				title: question.question,
 				answer: question.answer,
-				score: 10,
+				shorter: question.question.length > ANSWERLENGTH,
+				shorterAnswer: question.answer.length > ANSWERLENGTH - 4,
 				curID: 0,
 				showAnswer: false,
 				time: ''
@@ -43,11 +64,10 @@ var elQuestionList = {
 
 var elMask = {
 	template: '#el-mask',
-	props: ['type', 'showmask'],
+	props: ['type', 'showmask', 'src'],
 	methods: {
 		hideMask: function() {
 			vm.showMask = false;
-			vm.questionType = qsType.NONE;
 		}
 	}
 };
@@ -59,7 +79,7 @@ var qsType = {
 	'VIDEO': 2
 };
 
-var typeList = ['必答题', '抢答题', '风险题(10分)', '风险题(20分)', '风险题(30分)'];
+var typeList = ['必答题 第一轮', '必答题 第二轮', '抢答题 第一轮', '抢答题  第二轮', '风险题(10分)', '风险题(20分)', '风险题(30分)', '支部书记答题', '观众答题', '附加题'];
 
 var timeItvl;
 
@@ -75,29 +95,51 @@ var vm = new Vue({
 		typeID: 0,
 		type: '必答题',
 		question: {},
-		questionType: qsType.AUDIO,
+		questionType: qsType.NONE,
+		src: '',
 		showMask: false,
 		classlist: arr[0],
 		classOptions: [{
-			label: '题目类型',
+			label: '必答题',
 			options: [{
 				value: 0,
-				label: '必答题'
+				label: '第一轮'
 			}, {
 				value: 1,
-				label: '抢答题'
+				label: '第二轮'
+			}]
+		}, {
+			label: '抢答题',
+			options: [{
+				value: 2,
+				label: '第一轮'
+			}, {
+				value: 3,
+				label: '第二轮'
 			}]
 		}, {
 			label: '风险题',
 			options: [{
-				value: '2',
+				value: 4,
 				label: '风险题 - 10分'
 			}, {
-				value: '3',
+				value: 5,
 				label: '风险题 - 20分'
 			}, {
-				value: '4',
+				value: 6,
 				label: '风险题 - 30分'
+			}]
+		}, {
+			label: '其它',
+			options: [{
+				value: 7,
+				label: '支部书记答题'
+			}, {
+				value: 8,
+				label: '观众答题'
+			}, {
+				value: 9,
+				label: '附加题'
 			}]
 		}]
 	},
@@ -120,12 +162,41 @@ var vm = new Vue({
 			}
 		},
 		lightoff: function() {
+
+			if (curQuestion.type == qsType.NONE) {
+				return;
+			}
+
 			this.showMask = true;
-			this.questionType = qsType.VIDEO;
+			this.questionType = curQuestion.type;
+			switch (curQuestion.type) {
+				case qsType.AUDIO:
+					break;
+				case qsType.IMG:
+					break;
+				case qsType.VIDEO:
+					//还未响应，需在下一时钟周期触发
+					vm.$nextTick(function() {
+						if (flvjs.isSupported()) {
+							var videoElement = document.getElementById('videoElement');
+							var flvPlayer = flvjs.createPlayer({
+								type: 'flv',
+								cors: true,
+								url: curQuestion.src
+							});
+							flvPlayer.attachMediaElement(videoElement);
+							flvPlayer.load();
+							flvPlayer.play();
+						}
+
+					});
+					break;
+			}
 		},
 		goback: function() {
 			this.question.showAnswer = false;
 			this.on = true;
+			this.questionType = qsType.NONE;
 			if (timeItvl) {
 				clearInterval(timeItvl);
 			}
@@ -137,7 +208,7 @@ var vm = new Vue({
 			if (timeItvl) {
 				clearInterval(timeItvl);
 			}
-			this.question.time = this.typeID > 2 ? this.typeID * 10 - 10 : 10;
+			this.question.time = (this.typeID == 5 || this.typeID == 6) ? this.typeID * 10 - 30 : 10;
 			this.question.showAnswer = false;
 			var _self = this;
 			timeItvl = setInterval(function() {

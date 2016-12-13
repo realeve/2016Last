@@ -6,8 +6,6 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-       <!--  <link href="./src/css/index.css" rel="stylesheet">
-        <link href="./src/css/animate.min.css" rel="stylesheet"> -->
         <link rel="stylesheet" href="dest/css/index.min.css">
         <link href="./src/css/main.min.css" rel="stylesheet">
     </head>
@@ -15,14 +13,17 @@
         <!-- 题目组件 -->
         <script type="text/x-template" id="el-question">
           <div>
-              <el-col :span="18" :offset="3" class="answer-bg">
-                <el-col :span="24" class="margin-top-80 question">{{question.title}} ({{question.score}}分)</el-col>
+              <el-col :span="22" :offset="1" class="answer-bg">
+                <el-col :span="24" class="margin-top-80 question" :class={shorter:question.shorter} v-html="question.title"></el-col>
+                <div class="el-col margin-top-20 question el-col-24" v-if="type == 1">
+                  <audio :src="src" controls="controls"></audio>
+                </div>
                 <transition
                   name="custom-classes-transition"
                   enter-active-class="animated zoomIn"
                   leave-active-class="animated fadeOut"
                 >
-                  <el-col :span="24" class="margin-top-40 question el-icon-check" v-if="question.showAnswer" key="on"> 正确答案：{{question.answer}}</el-col>
+                  <el-col :span="24" class="margin-top-40 question el-icon-check" :class={shorter:question.shorterAnswer} v-if="question.showAnswer" v-html="question.answer" key="on"> </el-col>
                   <el-col :span="24" class="margin-top-40 question time-release" v-else="" key="off"> {{question.time}}</el-col>
                 </transition>
               </el-col>
@@ -36,7 +37,7 @@
                   <el-col :span="2" v-for="(item, index) in classlist" :offset="index % 6 == 0 ? 3 : 1" class="margin-top-10">
                     <el-card :body-style="{ padding: '0px' }">
                       <div class="image"><div class="answer-idx">{{index+1}}</div></div>
-                      <div style="padding: 14px;">
+                      <div style="padding: 10px;">
                         <div class="bottom clearfix">
                           <time class="time el-icon-check" v-if="item"></time>
                           <el-button v-else="" @click="selectQuestion(index)" type="text" class="button">选择本题</el-button>
@@ -51,15 +52,15 @@
        <!-- mask -->
         <script type="text/x-template" id="el-mask">
             <div v-show="showmask">
-              <div class="el-dialog__wrapper" style="left:10%;top:10%;width:80%;position: absolute;z-index: 2056;">
+              <div class="el-dialog__wrapper mask">
                   <div v-if="type == 0">
-                    <img src="dest/img/background.jpg" style="width:100%;">
+                    <img :src="src" style="width:80%;">
                   </div>
-                  <div v-else-if="type == 1">
-                    <audio src="dest/audio/01.mp3" controls="controls"></audio>
-                  </div>
+                  <!-- <div v-else-if="type == 1">
+                    <audio :src="src" controls="controls"></audio>
+                  </div> -->
                   <div v-else-if="type == 2">
-                    <video src="dest/video/01.mp4" controls="controls" style="width:100%;"></video>
+                    <video id="videoElement"  controls="controls" style="width:80%;"></video>
                   </div>
               </div>
               <div class="v-modal light-off" @click="hideMask" style="z-index: 2055;"></div>
@@ -69,19 +70,19 @@
         <div class="content">
             <div id="app" class="main">
                 <el-row class="text-center">
-                  <el-col :span="24" class="title"><h2>{{type}}</h2></el-col>
+                  <el-col :span="24" class="title"><h3>{{type}}</h3></el-col>
                      <transition
                         name="no-mode-translate-fade"
                         mode="out-in">
                         <!-- 题目列表 -->
                         <el-questionlist :classlist="classlist" v-if="on" key="on"></el-questionlist>
                         <!-- 当前题目 -->
-                        <el-question :question="question" v-else="" key="off"></el-question>
+                        <el-question :question="question" :src="src" :type="questionType" v-else="" key="off"></el-question>
                     </transition>
                 </el-row>
 
                 <div class="action">
-                    <el-col :span="3" :offset="5">
+                    <el-col :span="3" :offset="1">
                       <el-select v-model="typeID" placeholder="请选择">
                         <el-option-group
                           v-for="group in classOptions"
@@ -94,22 +95,20 @@
                         </el-option-group>
                       </el-select>
                     </el-col>
-                    <el-col :span="10" :offset="1">
+                    <el-col :span="16" :offset="1">
                       <el-button-group>
                         <el-button type="primary" icon="arrow-left" size="large" @click="goback">题目列表</el-button>
                         <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
-                        <el-button type="primary" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
+                        <el-button type="primary" v-if="questionType>-1" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
                         <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                       </el-button-group>
                     </el-col>
                 </div>
-
-                <el-mask :showmask="showMask" :type="questionType"></el-mask>
-
+                <el-mask :showmask="showMask" :src="src" :type="questionType"></el-mask>
             </div>
         </div>
-
     <script src="./dest/js/index.min.js"></script>
+    <script src="./src/js/questionList.min.js"></script>
     <script src='./src/js/main.min.js'></script>
     </body>
 </html>
