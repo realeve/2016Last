@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>随机抽奖</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+        <link href="http://cdn.bootcss.com/weui/1.0.2/style/weui.min.css" rel="stylesheet">
+        <link href="http://cdn.bootcss.com/jquery-weui/0.8.2/css/jquery-weui.min.css" rel="stylesheet">
+        <link href="./example.css" rel="stylesheet">
+    </head>
+    <body ontouchstart>
+
+    <!--BEGIN toast-->
+    <div id="toast" style="display: none;">
+        <div class="weui-mask_transparent"></div>
+        <div class="weui-toast">
+            <i class="weui-icon-success-no-circle weui-icon_toast"></i>
+            <p class="weui-toast__content">已完成</p>
+        </div>
+    </div>
+    <!--end toast-->
+    <!--BEGIN dialog2-->
+    <div id="toast2" style="display: none;">
+        <div class="weui-mask_transparent"></div>
+        <div class="weui-toast">
+            <i class="weui-icon-success-no-circle weui-icon_toast"></i>
+            <p class="weui-toast__content">抽奖人数或参与人数输入无效</p>
+        </div>
+    </div>
+    <!--END dialog2-->
+    <header class="demos-header" style="min-height:250px;">
+      <div class="weui_text_area" id="list" style="margin:0 20px;color:#777;">
+      </div>
+    </header>
+
+    <div class="weui-btn-area">
+        <div class="page__bd">
+            <div class="weui-cells__title">参与人数</div>
+            <div class="weui-cells">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="max" placeholder="请输入参与人数">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page__bd">
+            <div class="weui-cells__title">抽取数量</div>
+            <div class="weui-cells">
+                <div class="weui-cell">
+                    <div class="weui-cell__bd">
+                        <input class="weui-input" type="text" id="num" placeholder="每次抽取多少人">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="weui-btn-area">
+        <a class="weui-btn weui-btn_primary" href="javascript:" id="draw">开始抽取</a>
+        <a class="weui-btn weui-btn_default" href="javascript:" id="reset">重置</a>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script src='./index.min.js'></script>
+    </body>
+</html>

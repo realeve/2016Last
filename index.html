@@ -14,7 +14,7 @@
         <script type="text/x-template" id="el-question">
           <div>
               <el-col :span="22" :offset="1" class="answer-bg">
-                <el-col :span="24" class="margin-top-80 question" :class={shorter:question.shorter} v-html="question.title"></el-col>
+                <el-col :span="24" class="margin-top-40 question" :class={shorter:question.shorter} v-html="question.title"></el-col>
                 <div class="el-col margin-top-20 question el-col-24" v-if="type == 1">
                   <audio :src="src" controls="controls"></audio>
                 </div>
@@ -40,7 +40,10 @@
                       <div style="padding: 10px;">
                         <div class="bottom clearfix">
                           <time class="time el-icon-check" v-if="item"></time>
-                          <el-button v-else="" @click="selectQuestion(index)" type="text" class="button">选择本题</el-button>
+                          <el-button v-else="" @click="selectQuestion(index)" type="text" class="button">
+                          <span v-if="namelist[index]">{{namelist[index]}}</span>
+                          <span v-else>选择本题</span>
+                          </el-button>
                         </div>
                       </div>
                     </el-card>
@@ -54,13 +57,13 @@
             <div v-show="showmask">
               <div class="el-dialog__wrapper mask">
                   <div v-if="type == 0">
-                    <img :src="src" style="width:80%;">
+                    <img :src="src" style="width:100%;">
                   </div>
                   <!-- <div v-else-if="type == 1">
                     <audio :src="src" controls="controls"></audio>
                   </div> -->
                   <div v-else-if="type == 2">
-                    <video id="videoElement"  controls="controls" style="width:80%;"></video>
+                    <video id="videoElement"  controls="controls" style="width:100%;"></video>
                   </div>
               </div>
               <div class="v-modal light-off" @click="hideMask" style="z-index: 2055;"></div>
@@ -71,14 +74,21 @@
             <div id="app" class="main">
                 <el-row class="text-center">
                   <el-col :span="24" class="title"><h3>{{type}}</h3></el-col>
-                     <transition
-                        name="no-mode-translate-fade"
-                        mode="out-in">
-                        <!-- 题目列表 -->
-                        <el-questionlist :classlist="classlist" v-if="on" key="on"></el-questionlist>
-                        <!-- 当前题目 -->
-                        <el-question :question="question" :src="src" :type="questionType" v-else="" key="off"></el-question>
-                    </transition>
+                        <div v-if="!isDraw">
+                           <transition
+                              name="no-mode-translate-fade"
+                              mode="out-in">
+                              <!-- 题目列表 -->
+                              <el-questionlist :classlist="classlist" :namelist="nameList" v-if="on" key="on"></el-questionlist>
+                              <!-- 当前题目 -->
+                              <el-question :question="question" :src="src" :type="questionType" v-else="" key="off"></el-question>
+                          </transition>
+                        </div>
+                        <div v-else="">
+                          <el-col :span="22" :offset="1" class="answer-bg">
+                                <el-col :span="24" class="margin-top-20 question animated slideInUp" style="font-size: 30px;" v-for="lucky in luckyList">{{lucky}}</el-col>
+                          </el-col>
+                        </div>
                 </el-row>
 
                 <div class="action">
@@ -98,9 +108,21 @@
                     <el-col :span="16" :offset="1">
                       <el-button-group>
                         <el-button type="primary" icon="arrow-left" size="large" @click="goback">题目列表</el-button>
-                        <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
-                        <el-button type="primary" v-if="questionType>-1" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
-                        <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+
+                        <span v-if="!on">
+                           <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
+                            <el-button type="primary" v-if="questionType>-1" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
+                            <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                        </span>
+
+                        <span v-if="isDraw">
+                           <el-button type="primary" icon="el-icon el-icon-star-on" size="large" @click="lottery(5)">抽取5人</el-button>
+                           <el-button type="primary" icon="el-icon el-icon-star-off" size="large" @click="lottery(3)">抽取3人</el-button>
+                           <el-button type="primary" size="large" @click="stopLottery">停止<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                        </span>
+
+                        <el-button type="primary" v-if="!isDraw && on" size="large" @click="startLottery">抽奖<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+
                       </el-button-group>
                     </el-col>
                 </div>
