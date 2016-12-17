@@ -7,6 +7,7 @@ var index = {
 		"./src/js/jquery.min.js",
 		"./src/js/vue.min.js",
 		"./src/js/elementUI.js",
+		"./src/js/echarts.common.min.js",
 		"./src/js/flv.min.js"
 	]
 };

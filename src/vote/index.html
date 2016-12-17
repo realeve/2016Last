@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>两学一做记分板</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <link href="./assets/weui.min.css" rel="stylesheet">
+        <link href="./assets/example.css" rel="stylesheet">
+    </head>
+    <body>	
+	<!--BEGIN toast-->
+	<div id="toast" style="display: none;">
+		<div class="weui_mask_transparent"></div>
+		<div class="weui_toast">
+			<i class="weui_icon_toast"></i>
+			<p class="weui_toast_content">提交成功</p>
+		</div>
+	</div>
+	<div id="err" style="display: none;">
+		<div class="weui_mask_transparent"></div>
+		<div class="weui_toast">
+			<i class="weui_icon_toast"></i>
+			<p class="weui_toast_content">提交失败</p>
+		</div>
+	</div>
+	<!--end toast-->
+	<div class="cell">
+		<div class="hd">
+			<h1 class="page_title">记分板</h1>
+		</div>
+		<div class="bd">
+			<div class="weui_cells_title">队伍名称</div>
+			<div class="weui_cells">
+				<div class="weui_cell weui_cell_select">
+					<div class="weui_cell_bd weui_cell_primary">
+						<select class="weui_select" id="user">
+							<option selected="" value="1">技术中心</option>
+							<option value="2">钞纸</option>
+							<option value="3">胶凹</option>
+							<option value="4">管二</option>
+							<option value="5">管四</option>
+							<option value="6">长城公司</option>
+							<option value="7">检封</option>
+							<option value="8">设备管理</option>
+							<option value="9">印钞数管</option>
+							<option value="10">造币</option>
+							<option value="11">金鼎公司</option>
+							<option value="12">物业公司</option>
+							<option value="13">能源环保</option>
+							<option value="14">管一</option>
+							<option value="15">管三</option>
+							<option value="16">印码</option>
+							<option value="17">钞纸成品</option>
+						</select>
+					</div>
+				</div>
+				<div class="weui_cell">
+					<div class="weui_cell_hd"><label class="weui_label">得分</label></div>
+					<div class="weui_cell_bd weui_cell_primary">
+						<input class="weui_input" type="number" id="score" pattern="[0-9]*" placeholder="请输入得分">
+					</div>
+				</div>
+			</div>
+			<div class="weui_btn_area">
+				<a class="weui_btn weui_btn_primary" href="javascript:" id="submit">提交</a>
+			</div>
+		</div>
+	</div>	
+    <script src="./assets/jquery.min.js"></script>
+    <script src='./assets/index.min.js?v=0.1'></script>
+    </body>
+</html>

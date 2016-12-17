@@ -138,6 +138,10 @@ var app = (function() {
 		if (typeof question.type != 'undefined') {
 			vm.questionType = question.type;
 			vm.src = question.src;
+			vm.multiMediaStart = 0;
+			if (question.start != 'undefined') {
+				vm.multiMediaStart = question.start;
+			}
 		}
 
 		return obj;
@@ -161,12 +165,11 @@ var app = (function() {
 					time: ''
 				};
 				vm.on = !vm.on;
-				vm.isDraw = false;
+				vm.isDraw = 0;
 			}
 		}
 	};
 
-	var flvPlayer;
 	var elMask = {
 		template: '#el-mask',
 		props: ['type', 'showmask', 'src'],
@@ -174,7 +177,7 @@ var app = (function() {
 			hideMask: function() {
 				vm.showMask = false;
 				if (vm.questionType == qsType.VIDEO) {
-					flvPlayer.pause();
+					vm.flvPlayer.pause();
 				}
 			}
 		}
@@ -190,8 +193,32 @@ var app = (function() {
 	var typeList = ['必答题 第一轮', '必答题 第二轮', '抢答题 第一轮', '抢答题  第二轮', '风险题(10分)', '风险题(20分)', '风险题(30分)', '支部书记答题', '观众答题', '附加题'];
 
 	var timeItvl;
-
+	var chartItvl;
 	var drawItvl;
+
+	function launchFullscreen(element) {
+		//此方法不可以在異步任務中執行，否則火狐無法全屏
+		if (element.requestFullscreen) {
+			element.requestFullscreen();
+		} else if (element.mozRequestFullScreen) {
+			element.mozRequestFullScreen();
+		} else if (element.msRequestFullscreen) {
+			element.msRequestFullscreen();
+		} else if (element.oRequestFullscreen) {
+			element.oRequestFullscreen();
+		} else if (element.webkitRequestFullscreen) {
+			element.webkitRequestFullScreen();
+		} else {
+			var docHtml = document.documentElement;
+			var docBody = document.body;
+			var videobox = document.getElementById('videobox');
+			var cssText = 'width:100%;height:100%;overflow:hidden;';
+			docHtml.style.cssText = cssText;
+			docBody.style.cssText = cssText;
+			videobox.style.cssText = cssText + ';' + 'margin:0px;padding:0px;';
+			document.IsFullScreen = true;
+		}
+	}
 
 	var vm = new Vue({
 		el: '#app',
@@ -202,12 +229,14 @@ var app = (function() {
 		},
 		data: {
 			on: true,
-			isDraw: false,
+			isDraw: 0,
 			typeID: 0,
+			flvPlayer: '',
 			type: typeList[0],
 			question: {},
 			questionType: qsType.NONE,
 			src: '',
+			multiMediaStart: 0,
 			showMask: false,
 			classlist: arr[0],
 			nameList: [],
@@ -269,6 +298,13 @@ var app = (function() {
 						this.nameList.push(questionList[7][i].user);
 					}
 				}
+			},
+			isDraw: function(val) {
+				if (val == 2) {
+					vm.$nextTick(function() {
+						this.renderChart();
+					});
+				}
 			}
 		},
 		methods: {
@@ -280,6 +316,144 @@ var app = (function() {
 					clearInterval(timeItvl);
 				}
 			},
+			renderChart: function() {
+				var dom = document.getElementById("chart");
+				var myChart = echarts.init(dom);
+
+				var gb = {
+					colors: {
+						white: "#FFF",
+						whiteMedium: "rgba(255, 255, 255, 0.6)",
+						whiteMediumLight: "rgba(255, 255, 255, 0.3)",
+						whiteLight: "rgba(255, 255, 255, 0.2)",
+						whiteLighter: "rgba(255, 255, 255, 0.1)",
+						primary: "#556fb5",
+						primaryLight: "#889acb"
+					}
+				};
+				var getOption = function(data) {
+					var option = {
+						color: ['rgba(253,224,62,0.8)'],
+						"grid": {
+							"borderWidth": 0,
+							"x": 20,
+							"y": 20,
+							"x2": 20,
+							"y2": 100
+						},
+						tooltip: {},
+						xAxis: [{
+							type: 'category',
+							data: [],
+							axisLine: {
+								show: 0
+							},
+							axisTick: {
+								show: 0
+							},
+							boundaryGap: 0,
+							axisLabel: {
+								textStyle: {
+									color: gb.colors.white,
+									fontSize: 18
+								},
+								formatter: function(param, i) {
+									return param.split('').join('\n');
+
+								}
+							},
+							splitLine: {
+								show: false
+							}
+						}],
+						yAxis: [{
+							type: 'value',
+							splitLine: {
+								show: !0,
+								lineStyle: {
+									type: "dashed",
+									color: gb.colors.whiteLight
+								}
+							},
+							axisLine: {
+								show: 0
+							},
+							axisTick: {
+								show: 0
+							},
+							boundaryGap: 0,
+							axisLabel: {
+								show: 0
+							}
+						}],
+						series: [{
+							name: '得分',
+							type: "bar",
+							barMaxWidth: 40,
+							areaStyle: {
+								normal: {
+									color: gb.colors.whiteMediumLight
+								}
+							},
+							lineStyle: {
+								normal: {
+									width: 1
+								}
+							},
+							data: [],
+							itemStyle: {
+								normal: {
+									//color: gb.colors.whiteMedium,
+									width: 1,
+									label: {
+										show: true,
+										textStyle: {
+											fontSize: 20,
+											color: gb.colors.white
+										},
+										position: 'top',
+										//formatter: '{b}\n{c}\n'
+									},
+									barBorderRadius: 2
+								}
+							},
+							animationEasing: 'cubicInOut',
+							animationEasingUpdate: 'cubicInOut',
+							animationDelay: function(idx) {
+								return idx * 50;
+							},
+							animationDelayUpdate: function(idx) {
+								return idx * 100;
+							}
+						}]
+					};
+					data.map(function(item) {
+						option.xAxis[0].data.push(item.user);
+						option.series[0].data.push(parseFloat(item.num).toFixed(0));
+					});
+
+					return option;
+				};
+
+				var refreshData = function() {
+					var url = 'http://cbpc540.applinzi.com/index.php?s=/addon/GoodVoice/GoodVoice/qualityHrOnlineScore';
+					$.ajax({
+							url: url,
+							async: false,
+							dataType: "jsonp",
+							callback: "JsonCallback"
+						})
+						.done(function(obj) {
+							var option = getOption(obj);
+							myChart.setOption(option);
+						});
+				};
+				refreshData();
+				chartItvl = setInterval(function() {
+					refreshData();
+				}, 3000);
+
+			},
 			lightoff: function() {
 
 				if (vm.questionType == qsType.NONE) {
@@ -288,31 +462,79 @@ var app = (function() {
 
 				this.showMask = true;
 				this.questionType = vm.questionType;
-				if (vm.questionType == qsType.VIDEO) {
+				if (this.questionType == qsType.VIDEO) {
 					//还未响应，需在下一时钟周期触发
-					vm.$nextTick(function() {
+					this.$nextTick(function() {
+						var type = this.src.split('.')[2];
+						// if (type == 'mp4') {
+						// 	this.flvPlayer = document.getElementById('videoElement');
+						// 	this.flvPlayer.src = this.src;
+						// 	this.flvPlayer.load();
+						// 	this.flvPlayer.play();
+						// 	this.flvPlayer.currentTime = this.multiMediaStart;
+						// 	launchFullscreen(this.flvPlayer);
+						// 	//this.flvPlayer.webkitRequestFullScreen();
+						// 	return;
+						// }
 						if (flvjs.isSupported()) {
 							var videoElement = document.getElementById('videoElement');
-							flvPlayer = flvjs.createPlayer({
-								type: 'flv',
-								cors: true,
-								url: vm.src
-							});
-							flvPlayer.attachMediaElement(videoElement);
-							flvPlayer.load();
-							flvPlayer.play();
+							if (type == 'MP4') {
+								this.flvPlayer = videoElement;
+								this.flvPlayer.src = this.src;
+								this.flvPlayer.load();
+								this.flvPlayer.currentTime = this.multiMediaStart;
+								launchFullscreen(videoElement);
+								this.flvPlayer.play();
+							} else {
+								this.flvPlayer = flvjs.createPlayer({
+									type: type,
+									url: this.src
+								});
+								this.flvPlayer.attachMediaElement(videoElement);
+								this.flvPlayer.load();
+								this.flvPlayer.play();
+								launchFullscreen(videoElement);
+								videoElement.currentTime = this.multiMediaStart;
+								//document.getElementById('videoElement').webkitRequestFullScreen();
+							}
+							// if (type == 'mp4') {
+							// 	this.flvPlayer.currentTime = this.multiMediaStart;
+							// }
+
+							// setTimeout(function() {
+							// 	this.flvPlayer.currentTime = this.multiMediaStart;
+							// }, 4000);
 						}
 					});
 				}
 			},
 			goback: function() {
 				this.question.showAnswer = false;
+
+				if (this.questionType == qsType.VIDEO && this.flvPlayer != "") {
+					if (this.src.split('.')[2] == 'flv') {
+						this.flvPlayer.pause();
+						this.flvPlayer.unload();
+						this.flvPlayer.detachMediaElement();
+						this.flvPlayer.destroy();
+					} else {
+						this.flvPlayer.pause();
+					}
+				}
+
 				this.on = true;
+
 				this.questionType = qsType.NONE;
 				if (timeItvl) {
 					clearInterval(timeItvl);
 				}
-				this.isDraw = false;
+				if (drawItvl) {
+					clearInterval(drawItvl);
+				}
+				if (chartItvl) {
+					clearInterval(chartItvl);
+				}
+				this.isDraw = 0;
 				this.type = typeList[this.typeID];
 			},
 			timing: function() {
@@ -330,12 +552,14 @@ var app = (function() {
 					if (_self.question.time === 0) {
 						_self.question.time = '时间到';
 						clearInterval(timeItvl);
+						_self.showMask = false;
 					}
 				}, 1000);
 			},
-			startLottery: function() {
-				this.type = '中奖人信息';
-				this.isDraw = true;
+			startLottery: function(n) {
+				this.type = (n == 1) ? '中奖人信息' : '得分排名';
+				this.isDraw = n;
+				this.luckyList = [];
 			},
 			stopLottery: function() {
 				if (typeof drawItvl != 'undefined') {
@@ -343,11 +567,11 @@ var app = (function() {
 				}
 			},
 			lottery: function(n) {
-				this.isDraw = true;
-				vm.luckyList = [];
-				vm.stopLottery();
+				this.isDraw = 1;
+				this.luckyList = [];
+				this.stopLottery();
 				drawItvl = setInterval(function() {
-					vm.luckyList = draw.lottery(3, n == 5 ? 2 : 0);
+					vm.luckyList = draw.lottery(3, n > 3 ? 2 : 0);
 				}, 100);
 			}
 		}

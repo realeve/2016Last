@@ -73,22 +73,29 @@
         <div class="content">
             <div id="app" class="main">
                 <el-row class="text-center">
-                  <el-col :span="24" class="title"><h3>{{type}}</h3></el-col>
-                        <div v-if="!isDraw">
-                           <transition
-                              name="no-mode-translate-fade"
-                              mode="out-in">
-                              <!-- 题目列表 -->
-                              <el-questionlist :classlist="classlist" :namelist="nameList" v-if="on" key="on"></el-questionlist>
-                              <!-- 当前题目 -->
-                              <el-question :question="question" :src="src" :type="questionType" v-else="" key="off"></el-question>
-                          </transition>
-                        </div>
-                        <div v-else="">
-                          <el-col :span="22" :offset="1" class="answer-bg">
-                                <el-col :span="24" class="margin-top-20 question animated slideInUp" style="font-size: 30px;" v-for="lucky in luckyList">{{lucky}}</el-col>
-                          </el-col>
-                        </div>
+                  <el-col :span="24" class="title">
+                    <span>{{type}}</span>
+                  </el-col>
+                  <div v-if="isDraw == 0">
+                     <transition
+                        name="no-mode-translate-fade"
+                        mode="out-in">
+                        <!-- 题目列表 -->
+                        <el-questionlist :classlist="classlist" :namelist="nameList" v-if="on" key="on"></el-questionlist>
+                        <!-- 当前题目 -->
+                        <el-question :question="question" :src="src" :type="questionType" v-else="" key="off"></el-question>
+                    </transition>
+                  </div>
+                  <div v-else-if="isDraw==1">
+                    <el-col :span="22" :offset="1" class="answer-bg">
+                          <el-col :span="24" class="margin-top-20 question animated slideInUp" style="font-size: 30px;" v-for="lucky in luckyList">{{lucky}}</el-col>
+                    </el-col>
+                  </div>
+                  <div v-else-if="isDraw==2">
+                    <el-col :span="22" :offset="1" class="answer-bg">
+                          <el-col :span="24" class="animated slideInUp" style="height:450px;width:100%;" id="chart"></el-col>
+                    </el-col>
+                  </div>
                 </el-row>
 
                 <div class="action">
@@ -115,13 +122,15 @@
                             <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                         </span>
 
-                        <span v-if="isDraw">
+                        <span v-if="isDraw == 1">
                            <el-button type="primary" icon="el-icon el-icon-star-on" size="large" @click="lottery(5)">抽取5人</el-button>
                            <el-button type="primary" icon="el-icon el-icon-star-off" size="large" @click="lottery(3)">抽取3人</el-button>
                            <el-button type="primary" size="large" @click="stopLottery">停止<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                         </span>
 
-                        <el-button type="primary" v-if="!isDraw && on" size="large" @click="startLottery">抽奖<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                        <el-button type="primary" v-if="!isDraw && on" size="large" @click="startLottery(2)">得分排名</el-button>
+
+                        <el-button type="primary" v-if="!isDraw && on" size="large" @click="startLottery(1)">抽奖<i class="el-icon-arrow-right el-icon--right"></i></el-button>
 
                       </el-button-group>
                     </el-col>

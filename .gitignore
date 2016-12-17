@@ -49,4 +49,5 @@ node_modules
 .apdisk
 npm-debug.log
 *.mp4
+*.flv
 *.mp3
