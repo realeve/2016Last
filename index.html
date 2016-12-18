@@ -118,7 +118,7 @@
 
                         <span v-if="!on">
                            <el-button type="primary" icon="el-icon el-icon-time" size="large" @click="timing">开始计时</el-button>
-                            <el-button type="primary" v-if="questionType>-1" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
+                            <el-button type="primary" v-if="questionType==0 || questionType == 2" icon="el-icon el-icon-star-on" size="large" @click="lightoff">关灯</el-button>
                             <el-button type="primary" size="large" @click="showAnswer">查看答案<i class="el-icon-arrow-right el-icon--right"></i></el-button>
                         </span>
 
