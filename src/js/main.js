@@ -32,8 +32,8 @@ var draw = (function() {
 	}
 
 	var getUserList = function() {
-		var sportid = 4; //人大选举
-		//sportid = 5;//两学一做
+		var sportid = 5; //两学一做
+		// sportid = 4; //人大选举
 		$.ajax({
 			url: 'http://cbpc540.applinzi.com/index.php?s=/addon/GoodVoice/GoodVoice/getCheckinListIn2016&sportid=' + sportid,
 			dataType: "jsonp",
@@ -153,7 +153,7 @@ var app = (function() {
 		methods: {
 			selectQuestion: function(idx) {
 				vm.classlist[idx] = true;
-				this.$message('选择了第' + idx + '题');
+				//this.$message('选择了第' + idx + '题');
 				var question = getQuestionTitle(vm.typeID, idx);
 				vm.question = {
 					title: question.question,
@@ -571,7 +571,12 @@ var app = (function() {
 				this.luckyList = [];
 				this.stopLottery();
 				drawItvl = setInterval(function() {
-					vm.luckyList = draw.lottery(3, n > 3 ? 2 : 0);
+					if (n > 2) {
+						vm.luckyList = draw.lottery(4, 2);
+					} else {
+						vm.luckyList = draw.lottery(2, 0);
+					}
+
 				}, 100);
 			}
 		}

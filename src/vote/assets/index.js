@@ -1,8 +1,10 @@
     $(function() {
 
         var getData = function() {
+            var str = $('#user option:selected').text();
+            str = str.split('.')[1];
             return {
-                user: $('#user option:selected').text(),
+                user: str,
                 score: $('#score').val()
             };
         };
@@ -19,7 +21,6 @@
                     callback: "JsonCallback"
                 })
                 .done(function(obj) {
-                    console.log(obj);
                     if (obj.status) {
                         $('#toast').show();
                         setTimeout(function() {
